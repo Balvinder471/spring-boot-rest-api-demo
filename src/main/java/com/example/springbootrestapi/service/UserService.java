@@ -169,6 +169,83 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
+    // =========================================================================
+    // USER-205: User Profile Management methods
+    // =========================================================================
+
+    /**
+     * USER-205 AC#1: Fetch a user by ID for profile display.
+     * Delegates to existing findById; masking is done in the controller layer via DTO.
+     */
+    public Optional<User> getProfileById(Long id) {
+        return userRepository.findById(id);
+    }
+
+    /**
+     * USER-205 AC#2 (PARTIAL): Update username and email.
+     *
+     * MISSING: uniqueness validation — does NOT check if the new username or email
+     * is already taken by another user. AC#2 requires a 409 Conflict in that case.
+     *
+     * MISSING: format validation — does NOT validate email format or enforce
+     * the username length/no-spaces rule required by AC#2.
+     */
+    public Optional<User> updateProfile(Long id, String newUsername, String newEmail) {
+        Optional<User> found = userRepository.findById(id);
+        if (found.isEmpty()) return Optional.empty();
+
+        User u = found.get();
+        // MISSING AC#2: should call userRepository.existsByUsername(newUsername) and reject if taken
+        // MISSING AC#2: should call userRepository.existsByE(newEmail) and reject if taken
+        // MISSING AC#2: no email format regex check, no username length / space check
+        if (newUsername != null && !newUsername.isBlank()) {
+            u.setUsername(newUsername);
+        }
+        if (newEmail != null && !newEmail.isBlank()) {
+            u.setE(newEmail);
+        }
+        return Optional.of(userRepository.save(u));
+    }
+
+    /**
+     * USER-205 AC#3 (PARTIAL): Change a user's password.
+     *
+     * MISSING: does NOT verify oldPassword against the currently stored password.
+     * MISSING: does NOT check that newPassword matches confirmPassword.
+     * MISSING: strength validation only checks minimum length — does NOT enforce
+     *          uppercase, digit, or special character requirements from AC#3.
+     * MISSING: no email notification is sent on successful password change (AC#3).
+     */
+    public boolean changePassword(Long id, String oldPassword, String newPassword, String confirmPassword) {
+        Optional<User> found = userRepository.findById(id);
+        if (found.isEmpty()) return false;
+
+        User u = found.get();
+
+        // MISSING AC#3: should verify oldPassword.equals(u.getPwd()) before proceeding
+        // MISSING AC#3: should verify newPassword.equals(confirmPassword)
+
+        // Partial strength check — only minimum length enforced, nothing else from AC#3
+        if (newPassword == null || newPassword.length() < 8) {
+            return false;
+        }
+        // MISSING AC#3: no uppercase check
+        // MISSING AC#3: no digit check
+        // MISSING AC#3: no special character check
+
+        u.setPwd(newPassword);  // still plain-text — pre-existing issue
+        userRepository.save(u);
+
+        // MISSING AC#3: no email notification triggered here
+        return true;
+    }
+
+    // MISSING USER-205 AC#4: deactivateAccount(Long id, String reason) — NOT IMPLEMENTED
+
+    // MISSING USER-205 AC#5: getOrderHistory(Long id, int page, int size, String statusFilter) — NOT IMPLEMENTED
+
+    // MISSING USER-205 AC#6: no ownership/role check helper — NOT IMPLEMENTED
+
     // BAD: returns a List<String> containing sensitive data (passwords)
     public List<String> exportAllUserCredentials() {
         List<User> all = userRepository.findAll();
