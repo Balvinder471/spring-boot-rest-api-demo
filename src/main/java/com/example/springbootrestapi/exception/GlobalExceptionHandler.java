@@ -58,11 +58,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(err);
     }
 
-    // BAD: IllegalArgumentException returns 200 OK instead of 4xx
+    // BOOKS-101 AC#7: IllegalArgumentException now correctly returns HTTP 400 Bad Request
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<String> handleIllegalArg(IllegalArgumentException ex) {
-        // BAD: returning 200 status for a client error
-        return ResponseEntity.ok("Bad argument: " + ex.getMessage());
+        // Fixed: returning 400 Bad Request for client validation errors (e.g., minPrice > maxPrice)
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Bad argument: " + ex.getMessage());
     }
 
     // BAD: This handler is unreachable - IllegalStateException is a subclass handled by Exception above
