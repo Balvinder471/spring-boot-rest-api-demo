@@ -11,28 +11,21 @@ public class Review {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // BAD: inconsistent indentation (2-space vs 4-space mixed)
     private Long bookId;
   private Long userId;
 
-    // BAD: vague single-letter field names
     private int r;        // rating (1-5)
     private String t;    // text/review content
     private String n;    // reviewer name
 
-  // BAD: magic string status values instead of enum
     private String s;    // status: "PENDING", "APPROVED", "REJECTED"
 
-    // BAD: vague name - should be "helpfulnessCount"
   private int h;
 
-    // BAD: using deprecated java.util.Date instead of LocalDateTime
     private Date d;      // review date
 
-  // BAD: unused field leftover from old design
     private String tmp;
 
-    // BAD: another unused field
   private int oldRating;
 
     public Review() {}
@@ -45,8 +38,7 @@ public class Review {
         this.n = n;
         this.h = 0;
     this.d = new Date();
-        // BAD: status logic embedded in constructor - should be in service
-    if (r <= 2) {
+        if (r <= 2) {
             this.s = "PENDING";
         } else if (r >= 4) {
       this.s = "APPROVED";
