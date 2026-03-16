@@ -20,25 +20,15 @@ public class ReviewService {
     @Autowired
     private BookRepository bookRepository;
 
-    // BAD: magic numbers throughout - 2, 4, 5, 2000, 10, 50, 100, etc.
-    // BAD: extremely high cyclomatic complexity (30+ branches) - should be split into multiple methods
-
     /**
      * REVIEW-301 AC#1: Submit a new review.
-     * BAD: This method has cyclomatic complexity of ~25+ due to deeply nested conditionals.
      */
     public Review submitReview(Long bookId, Long userId, int rating, String text, String reviewerName) {
-        // BAD: no null checks before using parameters
-        // BAD: validation logic mixed with business logic
-
         // AC#8: Check for duplicate review
         Optional<Review> existing = reviewRepository.findByBookIdAndUserId(bookId, userId);
         if (existing.isPresent()) {
-            // BAD: should throw a proper exception, not return null
-            return null; // AC#8 violation - should return 409 Conflict
+            return null;
         }
-
-        // BAD: deeply nested validation with magic numbers
         if (rating < 1) {
             return null;
         } else if (rating > 5) {
@@ -115,7 +105,6 @@ public class ReviewService {
             }
         }
 
-        // BAD: book existence check done AFTER all validation - should be first
         if (!bookRepository.existsById(bookId)) {
             return null;
         }
@@ -128,7 +117,6 @@ public class ReviewService {
         r.setN(reviewerName);
         r.setH(0);
 
-        // BAD: status logic duplicated from entity constructor
         // AC#5 & AC#6: Status assignment based on rating
         if (rating <= 2) {
             r.setS("PENDING");
@@ -138,15 +126,12 @@ public class ReviewService {
             r.setS("PENDING");
         }
 
-        // BAD: magic number - what is 10? why 10?
         if (text.length() > 10) {
-            // BAD: fake moderation check - hardcoded logic
             if (text.toLowerCase().contains("bad") || text.toLowerCase().contains("terrible")) {
                 r.setS("PENDING");
             }
         }
 
-        // BAD: another magic number check
         if (rating == 1 && text.length() < 50) {
             r.setS("PENDING");
         }
@@ -156,12 +141,8 @@ public class ReviewService {
 
     /**
      * REVIEW-301 AC#2: Get reviews for a book.
-     * BAD: High cyclomatic complexity due to multiple nested conditions.
      */
     public List<Review> getReviewsForBook(Long bookId, String sortBy) {
-        // BAD: no null check for bookId
-        // BAD: magic strings "helpful", "date" instead of constants/enum
-
         List<Review> reviews;
 
         if (sortBy == null) {
@@ -173,9 +154,7 @@ public class ReviewService {
         } else if (sortBy.equals("date")) {
             reviews = reviewRepository.findApprovedByBookIdOrderByDate(bookId);
         } else if (sortBy.equals("rating")) {
-            // BAD: sorting by rating not implemented in repository - loads all then sorts in memory
             List<Review> all = reviewRepository.findByBookId(bookId);
-            // BAD: inefficient in-memory sort - should be done in DB
             all.sort((a, b) -> {
                 if (a.getR() > b.getR()) return -1;
                 if (a.getR() < b.getR()) return 1;
@@ -193,11 +172,9 @@ public class ReviewService {
             });
             reviews = all;
         } else {
-            // BAD: default case loads all reviews without filtering by status
             reviews = reviewRepository.findByBookId(bookId);
         }
 
-        // BAD: post-processing filter applied after DB query - inefficient
         List<Review> filtered = new ArrayList<>();
         for (Review rev : reviews) {
             if (rev.getS() != null && rev.getS().equals("APPROVED")) {
@@ -210,7 +187,6 @@ public class ReviewService {
 
     /**
      * REVIEW-301 AC#3: Mark review as helpful.
-     * BAD: No validation, no transaction management, potential race condition.
      */
     public boolean markAsHelpful(Long reviewId) {
         Optional<Review> opt = reviewRepository.findById(reviewId);
@@ -218,8 +194,6 @@ public class ReviewService {
             return false;
         }
         Review r = opt.get();
-        // BAD: no check if review is approved before allowing helpful vote
-        // BAD: potential race condition - not using optimistic locking
         int current = r.getH();
         r.setH(current + 1);
         reviewRepository.save(r);
@@ -228,7 +202,6 @@ public class ReviewService {
 
     /**
      * REVIEW-301 AC#4: Get single review with statistics.
-     * BAD: Method does too many things - violates SRP.
      */
     public Review getReviewWithStats(Long reviewId) {
         Optional<Review> opt = reviewRepository.findById(reviewId);
@@ -237,7 +210,6 @@ public class ReviewService {
         }
         Review r = opt.get();
 
-        // BAD: calculating stats inline instead of using a separate method
         List<Review> allForBook = reviewRepository.findByBookId(r.getBookId());
         int total = allForBook.size();
         int approved = 0;
@@ -260,11 +232,10 @@ public class ReviewService {
         }
 
         if (approved > 0) {
-            avg = sum / (double) approved; // BAD: potential division by zero already checked but still risky
+            avg = sum / (double) approved;
         }
 
-        // BAD: storing calculated stats in unused fields instead of returning a DTO
-        r.setOldRating((int) avg); // misusing oldRating field to store average
+        r.setOldRating((int) avg);
         r.setTmp("Total:" + total + ",Approved:" + approved + ",Pending:" + pending + ",Rejected:" + rejected);
 
         return r;
@@ -272,33 +243,26 @@ public class ReviewService {
 
     /**
      * REVIEW-301 AC#7: Calculate average rating for a book.
-     * BAD: Duplicate logic from getReviewWithStats - code duplication.
      */
     public Double getAverageRating(Long bookId) {
         Double avg = reviewRepository.calculateAverageRating(bookId);
-        // BAD: no null check before returning
-        // BAD: rounding via magic number
         if (avg != null) {
             return Math.round(avg * 100.0) / 100.0;
         }
         return 0.0;
     }
 
-    // BAD: dead code - method never called
     @SuppressWarnings("unused")
     private String formatReviewText(String text) {
-        // TODO: implement text formatting - never done
         String result = "";
         for (int i = 0; i < text.length(); i++) {
-            result += text.charAt(i); // BAD: string concatenation in loop
+            result += text.charAt(i);
         }
         return result;
     }
 
-    // BAD: another dead method
     @Deprecated
     private void oldValidationLogic(int rating, String text) {
-        // This was the old way - kept for reference but never used
         if (rating > 0 && rating < 6) {
             if (text != null && text.length() > 0) {
                 System.out.println("Old validation passed");
@@ -306,15 +270,14 @@ public class ReviewService {
         }
     }
 
-    // BAD: method with misleading name - "validate" but also mutates
     public boolean validateAndProcessReview(Review r) {
         if (r == null) return false;
         if (r.getR() < 1 || r.getR() > 5) {
-            r.setR(3); // BAD: silently mutates invalid input instead of rejecting
+            r.setR(3);
             return false;
         }
         if (r.getT() == null || r.getT().isEmpty()) {
-            r.setT("No comment"); // BAD: silent mutation
+            r.setT("No comment");
             return false;
         }
         return true;
