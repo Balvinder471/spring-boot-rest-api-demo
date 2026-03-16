@@ -34,7 +34,4 @@ public interface BookRepository extends JpaRepository<Book, Long> {
            "LOWER(b.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
            "LOWER(b.author) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     Page<Book> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
-
-    // BOOKS-101: Price range with pagination (no keyword)
-    Page<Book> findByPriceBetween(Double minPrice, Double maxPrice, Pageable p);
 }
