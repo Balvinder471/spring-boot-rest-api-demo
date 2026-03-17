@@ -8,6 +8,8 @@ on:
     branches-ignore:
       - main
       - develop
+  pull_request:
+    branches: main
 
 jobs:
   build:
