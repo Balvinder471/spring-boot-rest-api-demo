@@ -4,11 +4,12 @@
 name: Maven Package
 
 on:
-  push:
-    branches-ignore:
-      - main
-      - develop
-
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        
 jobs:
   build:
 
