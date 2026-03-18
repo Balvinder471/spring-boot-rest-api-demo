@@ -35,7 +35,7 @@ jobs:
       - name: Download binary artifact
         uses: actions/download-artifact@v4
         with:
-          name: policyserver-${{ github.event.inputs.branch }}-binary
+          name: policyserver-${{ inputs.branch }}-binary
           path: binary-input
 
       - name: Create deployable package

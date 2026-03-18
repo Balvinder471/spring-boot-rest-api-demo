@@ -22,14 +22,14 @@ jobs:
         id: v
         shell: cmd
         run: |
-          set RC=${{ github.event.inputs.rc_tag }}
+          set RC=${{ inputs.rc_tag }}
           set FINAL=%RC:-rc=%
           echo FINAL=%FINAL% >> %GITHUB_ENV%
 
       - name: Download RC artifact
         uses: actions/download-artifact@v4
         with:
-          name: PolicyServer-${{ github.event.inputs.rc_tag }}
+          name: PolicyServer-${{ inputs.rc_tag }}
           path: release-package
 
       - name: Tag release
