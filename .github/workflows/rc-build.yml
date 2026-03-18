@@ -1,0 +1,41 @@
+name: PolicyServer RC Build
+
+on:
+  push:
+    tags:
+      - "*-rc*"
+
+jobs:
+  rc-package:
+    name: Build RC Package
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout tagged commit
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: "21"
+          distribution: "temurin"
+
+      - name: Build binary
+        shell: cmd
+        env:
+          BINARY_PATH: ${{ github.workspace }}\binary-output
+        run: call build-binary.bat
+
+      - name: Create RC package
+        shell: cmd
+        env:
+          BINARY_PATH: ${{ github.workspace }}\binary-output
+          PACKAGE_PATH: ${{ github.workspace }}\package-output
+        run: call create-manual-package.bat
+
+      - name: Upload RC package
+        uses: actions/upload-artifact@v4
+        with:
+          name: PolicyServer-${{ github.ref_name }}
+          path: package-output\*.zip
+          retention-days: 30

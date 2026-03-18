@@ -1,0 +1,57 @@
+name: PolicyServer Manual Package
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Branch on top of which you want to create the package (e.g., ticket/ETM-123)"
+        required: true  
+
+      BINARY_PATH:
+        description: "Path to the binary to be packaged"
+        required: false
+
+      PACKAGE_PATH:
+        description: "Path to the package to be created"
+        required: false
+
+jobs:
+  package:
+    name: Create Deployable Package
+    runs-on: windows-latest
+
+    env:
+      # ✅ Default values from GitHub Variables
+      BINARY_PATH: ${{ inputs.BINARY_PATH || vars.BINARY_PATH }}
+      PACKAGE_PATH: ${{ inputs.PACKAGE_PATH || vars.PACKAGE_PATH }}
+
+    steps:
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: "21"
+          distribution: "temurin"
+
+      - name: Download binary artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: policyserver-${{ github.event.inputs.branch }}-binary
+          path: binary-input
+
+      - name: Create deployable package
+        shell: cmd
+        env:
+          BINARY_PATH: ${{ github.workspace }}\binary-input
+          PACKAGE_PATH: ${{ github.workspace }}\package-output
+
+        run: |
+          echo VAR1=%VAR1%
+          echo VAR2=%VAR2%
+          call create-manual-package.bat
+
+      - name: Upload package artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PolicyServer-package-${{ github.run_number }}
+          path: package-output\*.zip
+          retention-days: 5
