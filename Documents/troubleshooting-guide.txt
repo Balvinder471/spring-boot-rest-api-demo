@@ -1,0 +1,50 @@
+===============================================================================
+  Spring Boot REST API - Troubleshooting Guide
+===============================================================================
+
+Common Issues and Resolutions
+-----------------------------
+
+1. Application fails to start with "Port already in use"
+   Cause:    Port 8080 is occupied by another process.
+   Solution: Either stop the other process or change the port:
+             server.port=8081 in application.properties
+
+2. Database connection refused
+   Cause:    MySQL is not running or credentials are incorrect.
+   Solution: Verify MySQL is running:  mysqladmin -u root -p status
+             Check credentials in application.properties.
+
+3. JWT token expired or invalid
+   Cause:    Token has exceeded its TTL or the secret key changed.
+   Solution: Re-authenticate to obtain a new token.
+             Ensure jwt.secret is consistent across restarts.
+
+4. 403 Forbidden on API requests
+   Cause:    Missing or invalid Authorization header.
+   Solution: Include the header: Authorization: Bearer <your-token>
+
+5. H2 console not accessible
+   Cause:    H2 console is disabled by default.
+   Solution: Add to application.properties:
+             spring.h2.console.enabled=true
+             Then access at http://localhost:8080/h2-console
+
+6. Out of memory errors
+   Cause:    JVM heap is too small.
+   Solution: Start with increased memory:
+             java -Xmx512m -Xms256m -jar application.jar
+
+Collecting Logs
+---------------
+  - Application logs are written to the console by default.
+  - To enable file logging, set in application.properties:
+      logging.file.name=app.log
+  - Increase log verbosity:
+      logging.level.com.example=DEBUG
+
+Getting Support
+---------------
+  - Review the installation-guide.txt and configuration-guide.txt
+  - Check application logs for stack traces
+  - Contact the development team with the log file attached

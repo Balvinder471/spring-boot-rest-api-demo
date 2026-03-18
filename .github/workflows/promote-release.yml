@@ -1,0 +1,39 @@
+name: PolicyServer Promote Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      rc_tag:
+        description: "RC tag (e.g., 3.18.0.0-rc3)"
+        required: true
+
+jobs:
+  promote:
+    name: Promote RC to Release
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Extract version
+        id: v
+        shell: cmd
+        run: |
+          set RC=${{ github.event.inputs.rc_tag }}
+          set FINAL=%RC:-rc=%
+          echo FINAL=%FINAL% >> %GITHUB_ENV%
+
+      - name: Download RC artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: PolicyServer-${{ github.event.inputs.rc_tag }}
+          path: release-package
+
+      - name: Tag release
+        shell: cmd
+        run: |
+          git tag %FINAL%
+          git push origin %FINAL%

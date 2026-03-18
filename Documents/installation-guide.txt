@@ -1,0 +1,41 @@
+===============================================================================
+  Spring Boot REST API - Installation Guide
+===============================================================================
+
+Prerequisites
+-------------
+  - Java 21 or higher (JDK)
+  - MySQL 8.0+ (or H2 for embedded mode)
+  - Minimum 512 MB available RAM
+  - Port 8080 available (default)
+
+Installation Steps
+------------------
+
+1. Extract the RestApiDemo.zip package to your desired installation directory.
+
+2. Verify the directory structure:
+       RestApiDemo/
+           Documents/       -- This documentation folder
+           WebApp/          -- Application binaries (exploded JAR)
+
+3. Configure the application:
+   - Navigate to WebApp/BOOT-INF/classes/
+   - Edit application.properties to set your database connection:
+       spring.datasource.url=jdbc:mysql://localhost:3306/your_db
+       spring.datasource.username=your_username
+       spring.datasource.password=your_password
+
+4. Start the application:
+   - Open a terminal in the WebApp/ directory
+   - Run: java -cp . -Dloader.path=BOOT-INF/lib org.springframework.boot.loader.launch.JarLauncher
+
+5. Verify the application is running:
+   - Open a browser and navigate to http://localhost:8080
+   - You should see the application respond
+
+Stopping the Application
+-------------------------
+  - Press Ctrl+C in the terminal where the application is running
+
+For troubleshooting, refer to troubleshooting-guide.txt in this Documents folder.
