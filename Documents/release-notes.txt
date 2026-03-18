@@ -1,0 +1,44 @@
+===============================================================================
+  Spring Boot REST API - Release Notes
+===============================================================================
+
+Version: 0.0.1-SNAPSHOT
+Release Date: March 2026
+
+Overview
+--------
+  Initial release of the Spring Boot REST API Demo application.
+
+Features
+--------
+  - User registration and authentication (JWT-based)
+  - Book management CRUD operations
+  - Book search functionality
+  - Order management
+  - User profile management
+  - H2 in-memory database support for development
+  - MySQL database support for production
+  - Spring Security integration
+
+API Endpoints
+-------------
+  - POST   /api/auth/register     -- Register a new user
+  - POST   /api/auth/login        -- Authenticate and receive JWT
+  - GET    /api/books             -- List all books
+  - POST   /api/books             -- Add a new book
+  - GET    /api/books/{id}        -- Get book by ID
+  - PUT    /api/books/{id}        -- Update a book
+  - DELETE /api/books/{id}        -- Delete a book
+  - GET    /api/books/search      -- Search books
+  - GET    /api/orders            -- List orders
+  - POST   /api/orders            -- Create an order
+  - GET    /api/users/profile     -- Get user profile
+  - PUT    /api/users/profile     -- Update user profile
+
+Known Issues
+------------
+  - None reported at this time.
+
+Upgrade Notes
+-------------
+  - This is the initial release; no upgrade path required.
