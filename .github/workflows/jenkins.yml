@@ -10,7 +10,7 @@ jobs:
   # This workflow contains a single job called "build"
   build:
     name: Build
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Linux]
     steps:
       - name: Trigger jenkins job
         uses: joshlk/jenkins-githubaction@master
