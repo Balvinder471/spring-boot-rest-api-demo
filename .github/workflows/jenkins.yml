@@ -15,7 +15,7 @@ jobs:
       - name: Trigger jenkins job
         uses: joshlk/jenkins-githubaction@master
         with:
-          url: http://localhost:8080/
+          url: http://host.containers.internal:8080
           job_name: Download_Ps_Package
           username: seclore
           api_token: ${{ secrets.JENKINS_TOKEN }}
